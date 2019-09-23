@@ -62,8 +62,7 @@ public class HandControl : MonoBehaviour
         // Set the image conversion params.
         m_imageConversionParams = new XRCameraImageConversionParams
         {
-            //inputRect = new RectInt(0, 0, m_cameraImage.width, m_cameraImage.height),
-            outputFormat = TextureFormat.ARGB32,
+            outputFormat = TextureFormat.RGB24,
             outputDimensions = new Vector2Int(x: 256, y: 256)
         };
     }
@@ -102,18 +101,6 @@ public class HandControl : MonoBehaviour
         m_imageConversionParams.inputRect = new RectInt(0, 0, m_cameraImage.width, m_cameraImage.height);
         m_cameraImage.ConvertAsync(m_imageConversionParams, ProcessImage);
 
-        #region OLD(SYNC)
-        // Set up the image frame buffer.
-        // TODO: Do it async.
-        //int size = m_cameraImage.GetConvertedDataSize(m_imageConversionParams);
-        //var imageBuffer = new NativeArray<byte>(size, Allocator.Temp);
-        //m_cameraImage.Convert(m_imageConversionParams, new System.IntPtr(imageBuffer.GetUnsafePtr()), imageBuffer.Length);
-
-        ////Use the android plugin to do prediction.
-        //byte[] input = imageBuffer.ToArray();
-        //m_androidWrapper.RunInferenceAsync(input);
-        #endregion
-
         // Release the memory.
         m_cameraImage.Dispose();
     }
@@ -135,4 +122,5 @@ public class HandControl : MonoBehaviour
         m_androidWrapper.RunInference(data.ToArray());
     }
     #endregion
+
 }

@@ -20,8 +20,9 @@ import org.tensorflow.lite.gpu.GpuDelegate;
 public class HandTrackingInference{
 
     private static final String TAG = "HandTrackingInterface";
-    private boolean m_gpuSupport = true;
-    public Interpreter tflite;
+    private boolean m_gpuSupport;
+    private Interpreter tflite;
+    private Thread inferenceThread;
 
     public HandTrackingInference(boolean m_gpuSupport){
         this.m_gpuSupport = m_gpuSupport;
@@ -66,9 +67,26 @@ public class HandTrackingInference{
     /*
         Runs inference using the input and the output.
      */
-    public void RunInference(byte[] inputBuffer){
+    public void RunInference(final byte[] inputBuffer){
         float[][] output = new float[1][63];
-        tflite.run(Utils.convertRawByteDataToByteBuffer(inputBuffer), output);
+        InferenceThread thread = new InferenceThread(inputBuffer, output);
+        thread.start();
+    }
+
+    private class InferenceThread extends Thread{
+
+        private byte[] inputBuffer;
+        private float[][] output;
+
+        InferenceThread(byte[] inputBuffer, float[][] output){
+            this.inputBuffer = inputBuffer;
+            this.output = output;
+        }
+
+        @Override
+        public void run() {
+            tflite.run(Utils.convertRawByteDataToByteBuffer(inputBuffer), output);
+        }
     }
 
 }
