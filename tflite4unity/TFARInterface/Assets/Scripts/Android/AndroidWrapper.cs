@@ -20,7 +20,7 @@ public class AndroidWrapper
     /// </summary>
     private AndroidJavaClass m_utilsClassAndroid;
 
-    #region Android Class Name Constants
+    #region Android Plugin Name Constants
     private readonly string UNITY_ACTIVITY_CLASS_NAME = "com.unity3d.player.UnityPlayer";
     private readonly string UTILS_CLASS_NAME = "com.bora.tflitehandtracking.Utils";
     private readonly string TFLITE_CLASS_ANDROID = "com.bora.tflitehandtracking.HandTrackingInference";
@@ -45,9 +45,17 @@ public class AndroidWrapper
     /// <summary>
     /// Runs inference.
     /// </summary>
-    public void RunInference(byte[] input)
+    public float[] RunInference(byte[] input)
     {
-        m_tfliteAndroidClass.Call("RunInference", input);
+        m_tfliteAndroidClass.Call<float[]>("RunInference", input);
+        float[] keypoints = m_tfliteAndroidClass.Call<float[]>("getKeypoints");
+        float handConfidence = m_tfliteAndroidClass.Call<float>("getHandscore");
+
+        if (handConfidence >= 0.5)
+        {
+            return keypoints;
+        }
+        return null;
     }
 
 
