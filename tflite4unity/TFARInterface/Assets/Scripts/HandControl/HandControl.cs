@@ -83,7 +83,7 @@ public class HandControl : MonoBehaviour
         int j = 0;
         for (int i = 0; i < keypoints.Length; i += 3)
         {
-            keypointPositions[j] = m_camera.ScreenToWorldPoint(new Vector3(keypoints[i]*RATIO_X, keypoints[i+1]*RATIO_Y, 1));
+            keypointPositions[j] = m_camera.ScreenToWorldPoint(new Vector3(keypoints[i]*RATIO_X, 1080.0f - keypoints[i+1]*RATIO_Y, 1));
             j++;
         }
 
