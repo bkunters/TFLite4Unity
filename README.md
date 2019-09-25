@@ -10,4 +10,10 @@ TFLite models are normally not supported by the ml-agents framework. This causes
 4.  Performance optimizations.
 
 ## Project Structure
-TODO.
+
+## Contributions
+Contributions are welcomed and encouraged!
+
+1.  TFLite plugin can be ported to C++ for better performance.
+2.  You can add your .tflite models into the /assets folder to share them for reuse. 
+
