@@ -7,7 +7,7 @@ TFLite models are normally not supported by the ml-agents framework. This causes
 1.  Simple TFLite interpreter integration.
 2.  Reusable plug&play API on the C# side to reduce development time without rewriting the same components again.
 3.  Integration into the AR Foundations package to use computer vision neural nets for several tasks.
-4.  ...
+4.  Performance optimizations.
 
 ## Project Structure
 TODO.
