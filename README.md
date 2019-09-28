@@ -4,9 +4,9 @@
 TFLite models are normally not supported by the ml-agents framework. This causes the problem that quantized models can not be currently run by the Unity Inference Engine whereas performance drawbacks are inevitable during the runtime. Currently, tflite models' performances are backed by the GPU delegates which have been implemented in the mean time and are being developed further. Especially, with the development of frameworks like MediaPipe, Unity could need more power on the Android side due to the unsupport of the TFLite models. This plugin helps to integrate TFLite inference into the Unity Engine and also to the R&D teams for preparing quick prototypes as the Unity Engine has an easy environment to accomplish this purpose.
 
 ## Roadmap
-1.  Simple TFLite interpreter integration.
-2.  Reusable plug&play API on the C# side to reduce development time without rewriting the same components again.
-3.  Easy integration into the AR Foundations environment to use computer vision neural nets for several tasks for AR scenes.
+1.  Simple TFLite interpreter integration(in development).
+2.  Reusable plug&play API on the C# side to reduce development time without rewriting the same components again(in development).
+3.  Easy integration into the AR Foundations environment to use computer vision neural nets for several tasks for AR scenes(in development).
 4.  Performance optimizations.
 
 ## Project Structure
