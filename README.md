@@ -25,3 +25,8 @@ Contributions are welcomed and encouraged!
 ## Acknowledgments
 
 Thanks to the [MediaPipe Team](https://github.com/google/mediapipe) for having published their useful models for essential AR interactions!
+
+## Warnings
+
+Currently the plugin uses the alpha version of the TF Lite framework which means that you should use the plugin accordingly. 
+The productions versions will be integrated later.
