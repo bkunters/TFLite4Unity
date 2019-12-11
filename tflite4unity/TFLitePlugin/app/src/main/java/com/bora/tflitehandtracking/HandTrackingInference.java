@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,17 +20,14 @@ import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.gpu.GpuDelegate;
 import org.tensorflow.lite.nnapi.NnApiDelegate;
 
-/**
- * TODO: Port this small API to C++ for more efficient inference.
- * see https://stackoverflow.com/questions/49834875/problems-with-using-tensorflow-lite-c-api-in-android-studio-project/50332808#50332808.
- */
 public class HandTrackingInference implements InferenceInterface<float[]>{
 
     private static final String TAG = "HandTrackingInterface";
+    private final String MODEL_NAME = "hand_3d.tflite";
     private Interpreter tflite;
     private boolean m_gpuSupport;
-    public float[][] outputKeypoints = new float[1][63];  // 21 keypoint locations
-    public float[][] outputHandscore = new float[1][1];  // confidence of the hand existence.
+    public float[][] outputKeypoints = new float[1][63];  // 21 keypoint vectors.
+    public float[][] outputHandscore = new float[1][1];   // confidence of the hand existence.
 
     private HandlerThread hThread;
     private Handler handler;
@@ -50,7 +46,7 @@ public class HandTrackingInference implements InferenceInterface<float[]>{
     {
         try{
             // Prepare the file.
-            AssetFileDescriptor fileDescriptor = activity.getAssets().openFd("hand_3d.tflite");
+            AssetFileDescriptor fileDescriptor = activity.getAssets().openFd(MODEL_NAME);
             Log.d(TAG, "loadModelFile: " + fileDescriptor.toString());
             FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
             FileChannel fileChannel = inputStream.getChannel();
@@ -59,7 +55,7 @@ public class HandTrackingInference implements InferenceInterface<float[]>{
             MappedByteBuffer model = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
 
             while(tflite == null){
-                Log.e(TAG, "tlite is null!");
+                Log.e(TAG, "tflite is null!");
 
                 if(m_gpuSupport) {
                     // Initialize model with GPU support.
