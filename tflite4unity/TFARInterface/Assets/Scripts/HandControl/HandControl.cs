@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.XR.ARFoundation;
-using UnityEngine.XR.ARSubsystems;
+﻿using UnityEngine;
 
 /// <summary>
-/// Utilities class for hand control.
+/// Inference class for 3D hand tracking.
 /// </summary>
-public class HandControl : MonoBehaviour
+public class HandControl : MonoBehaviour, IInference
 {
 
     #region Public Fields
-    // TODO: 6-classed classification problem.
+    // TODO: Classify the hand gestures at each frame.
+    // https://www.manomotion.com/supported-gestures/
     public enum Gestures
     {
         GrabHold,           // 0
@@ -29,9 +22,14 @@ public class HandControl : MonoBehaviour
 
     #region Private Fields
     /// <summary>
-    /// Wrapper to be used for inference in each frame.
+    /// Wrapper to be used for inference at each frame.
     /// </summary>
     private AndroidWrapper m_androidWrapper;
+
+    /// <summary>
+    /// Name of the inference class.
+    /// </summary>
+    private readonly string HANDTRACKING3D_CLASS_NAME = "com.bora.tflitehandtracking.HandTrackingInference3D";
 
     /// <summary>
     /// The AR camera rendering the scene.
@@ -39,20 +37,26 @@ public class HandControl : MonoBehaviour
     [SerializeField]
     private Camera m_camera;
 
-    // DEBUG.
+    // TODO: Remove it later.
     [SerializeField]
     private LineRenderer[] m_keypoints;
 
-    private readonly float RATIO_X = (1920/256);    // TODO: Change later.
-    private readonly float RATIO_Y = (1080/256);    // TODO: Change later.
+    // Input image width for the tracking model is 256.
+    private readonly float RATIO_X = (Screen.currentResolution.width / 256);
+    // Input image height for the tracking model is 256.
+    private readonly float RATIO_Y = (Screen.currentResolution.height / 256);
     #endregion
 
     #region Lifetime Methods
     void Awake()
     {
-        m_androidWrapper = new AndroidWrapper();
+        // Set the android wrapper.
+        m_androidWrapper = new AndroidWrapper(HANDTRACKING3D_CLASS_NAME);
     }
 
+    /// <summary>
+    /// Capture the current frame and run the inference.
+    /// </summary>
     private void LateUpdate()
     {
         RenderTexture renderTexture = new RenderTexture(256, 256, 24);
@@ -68,7 +72,7 @@ public class HandControl : MonoBehaviour
         byte[] imageData = cameraImageTexture.EncodeToJPG();
         Destroy(renderTexture);
 
-        float[] keypoints = m_androidWrapper.RunInference(imageData);
+        float[] keypoints = RunInference(imageData);
         if (keypoints != null)
         {
             SetHandLines(keypoints);
@@ -77,12 +81,18 @@ public class HandControl : MonoBehaviour
     #endregion
 
     #region Custom Methods
+    /// <summary>
+    /// TODO: ONLY FOR DEBUG PURPOSES.
+    /// Draw the hand lines by connecting the output keypoints.
+    /// <paramref name="keypoints" All the keypoints in the current frame. 
+    /// </summary>
     private void SetHandLines(float[] keypoints)
     {
         Vector3[] keypointPositions = new Vector3[21];
         int j = 0;
         for (int i = 0; i < keypoints.Length; i += 3)
         {
+            // TODO: adapt to the current screen size.
             keypointPositions[j] = m_camera.ScreenToWorldPoint(new Vector3(keypoints[i]*RATIO_X, 1080.0f - keypoints[i+1]*RATIO_Y, 1));
             j++;
         }
@@ -170,6 +180,21 @@ public class HandControl : MonoBehaviour
         // 19-20
         m_keypoints[20].SetPosition(0, keypointPositions[19]);
         m_keypoints[20].SetPosition(1, keypointPositions[20]);
+    }
+    
+    
+    /// <summary>
+    /// Runs the inference on device.
+    /// </summary>
+    public float[] RunInference(byte[] input){
+        m_androidWrapper.TFLiteInferenceClass.Call<float[]>("RunInference", input);
+        float[] keypoints = m_androidWrapper.TFLiteInferenceClass.Call<float[]>("getKeypoints");
+        float handConfidence = m_androidWrapper.TFLiteInferenceClass.Call<float>("getHandscore");
+
+        if(handConfidence >= 0.5){
+            return keypoints;
+        }
+        return null;
     }
     #endregion
 
