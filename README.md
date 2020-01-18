@@ -26,7 +26,8 @@ Contributions are welcomed and encouraged!
 
 Thanks to the [MediaPipe Team](https://github.com/google/mediapipe) for having published their useful models for essential AR interactions!
 
-## Warnings
+## Tech Stack
 
-Currently the plugin uses the alpha version of the TF Lite framework which means that you should use the plugin accordingly. 
-The productions versions will be integrated later.
+1.  Tensorflow Lite 2.0.0
+2.  Unity 2019.2(recommended)
+3.  Android Studio

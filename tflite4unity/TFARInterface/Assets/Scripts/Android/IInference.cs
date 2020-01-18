@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-/// <summary>
+﻿/// <summary>
 /// Inherit this class and customize the <c>RunInference</c>.
 /// </summary>
 public interface IInference
