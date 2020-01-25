@@ -13,7 +13,7 @@ TFLite models are normally not supported by the ml-agents framework. This causes
 
 [TFARInterface](tflite4unity/TFARInterface) : A Unity interface to use the tflite plugin.
 
-[TFLite Android](tflite4unity/TFLitePlugin/Assets/TFLiteAndroidProject) : A plugin to support tflite models on the Android side.
+[TFLite Android](tflite4unity/TFARInterface/Assets/TFLiteAndroidProject) : A plugin to support tflite models on the Android side.
 TODO: iOS plugin will be added.
 
 ## Contributions
