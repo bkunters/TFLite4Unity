@@ -1,18 +1,10 @@
 using System;
 using System.Runtime.InteropServices;
 
-/// Links:
-/// 1) See the c_api.cc file
-/// 2) https://docs.microsoft.com/en-us/dotnet/framework/interop/marshaling-classes-structures-and-unions
+// TODO: Define type aliases later after having moved the structs.
 namespace TFLite{
 
-// Type aliases.
-using TfLiteModel               = IntPtr;
-using TfLiteInterpreterOptions  = IntPtr;
-using TfLiteDelegate            = IntPtr;
-using TfLiteTensorData          = IntPtr;
-
-private static const string LIB_NAME = "libtensorflowlite_c";
+public static const string LIB_NAME = "libtensorflowlite_c";
 
 public class InterpreterWrapper{
 
@@ -26,17 +18,27 @@ public class InterpreterWrapper{
 
     [StructLayout(LayoutKind.Sequential)]
     struct TfLiteModel{
-        // TODO.
+        IntPtr impl;
     };
 
     [StructLayout(LayoutKind.Sequential)]
     struct TfLiteInterpreter{
-        // TODO.
+        IntPtr model;
+        IntPtr optional_error_reporter;
+        IntPtr impl;
     };
 
     [StructLayout(LayoutKind.Sequential)]
     struct TfLiteInterpreterOptions{
-        // TODO.
+        enum Threads{
+            kDefaultNumThreads = -1
+        };
+
+        int num_threads = Threads.kDefaultNumThreads;
+        MutableOpResolver op_resolver;
+        IntPtr error_reporter = IntPtr.Zero;
+        IntPtr error_reporter_user_data = IntPtr.Zero;
+        IntPtr delegates;
     };
 
     enum TfLiteStatus{
@@ -49,107 +51,106 @@ public class InterpreterWrapper{
     #region Native Methods
     
     [DllImport(LIB_NAME)]
-    private static extern unsafe string TfLiteVersion();
+    public static extern unsafe string TfLiteVersion();
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe TfLiteInterpreter TfLiteModelCreate(IntPtr model_data, uint model_size);
+    public static extern unsafe IntPtr TfLiteModelCreate(IntPtr model_data, uint model_size);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe TfLiteModel TfLiteModelCreateFromFile(string model_path);
+    public static extern unsafe IntPtr TfLiteModelCreateFromFile(string model_path);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe TfLiteInterpreter TfLiteModelDelete(TfLiteModel model);
+    public static extern unsafe void TfLiteModelDelete(IntPtr model);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe TfLiteInterpreterOptions TfLiteInterpreterOptionsCreate();
+    public static extern unsafe IntPtr TfLiteInterpreterOptionsCreate();
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe void TfLiteInterpreterOptionsDelete(TfLiteInterpreterOptions options);
+    public static extern unsafe void TfLiteInterpreterOptionsDelete(IntPtr options);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe void TfLiteInterpreterOptionsSetNumThreads(
-        TfLiteInterpreterOptions options,
+    public static extern unsafe void TfLiteInterpreterOptionsSetNumThreads(
+        IntPtr options,
         int num_threads
     );
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe void TfLiteInterpreterOptionsAddDelegate(
-        TfLiteInterpreterOptions options,
-        TfLiteDelegate _delegate);
+    public static extern unsafe void TfLiteInterpreterOptionsAddDelegate(
+        IntPtr options,
+        IntPtr _delegate);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe void TfLiteInterpreterOptionsSetErrorReporter(TfLiteInterpreterOptions options, IntPtr reporter, IntPtr user_data);
+    public static extern unsafe void TfLiteInterpreterOptionsSetErrorReporter(IntPtr options, IntPtr reporter, IntPtr user_data);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe TfLiteInterpreter TfLiteInterpreterCreate(
-        TfLiteModel model,
-        TfLiteInterpreterOptions optional_options);
+    public static extern unsafe TfLiteInterpreter TfLiteInterpreterCreate(
+        IntPtr model,
+        IntPtr optional_options);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe void TfLiteInterpreterDelete(TfLiteInterpreter interpreter);
+    public static extern unsafe void TfLiteInterpreterDelete(IntPtr interpreter);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe int TfLiteInterpreterGetInputTensorCount(
-        TfLiteInterpreter interpreter);
+    public static extern unsafe int TfLiteInterpreterGetInputTensorCount(IntPtr interpreter);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe TfLiteTensor TfLiteInterpreterGetInputTensor(
-        TfLiteInterpreter interpreter,
+    public static extern unsafe TfLiteTensor TfLiteInterpreterGetInputTensor(
+        IntPtr interpreter,
         int input_index);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe int TfLiteInterpreterResizeInputTensor(
-        TfLiteInterpreter interpreter,
+    public static extern unsafe int TfLiteInterpreterResizeInputTensor(
+        IntPtr interpreter,
         int input_index,
-        int[] input_dims,
+        IntPtr input_dims,
         int input_dims_size);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe int TfLiteInterpreterAllocateTensors(
-        TfLiteInterpreter interpreter);
+    public static extern unsafe int TfLiteInterpreterAllocateTensors(
+        IntPtr interpreter);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe int TfLiteInterpreterInvoke(TfLiteInterpreter interpreter);
+    public static extern unsafe int TfLiteInterpreterInvoke(IntPtr interpreter);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe int TfLiteInterpreterGetOutputTensorCount(
-        TfLiteInterpreter interpreter);
+    public static extern unsafe int TfLiteInterpreterGetOutputTensorCount(
+        IntPtr interpreter);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe TfLiteTensor TfLiteInterpreterGetOutputTensor(
-        TfLiteInterpreter interpreter,
+    public static extern unsafe TfLiteTensor TfLiteInterpreterGetOutputTensor(
+        IntPtr interpreter,
         int output_index);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe DataType TfLiteTensorType(TfLiteTensor tensor);
+    public static extern unsafe TfLiteType TfLiteTensorType(IntPtr tensor);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe int TfLiteTensorNumDims(TfLiteTensor tensor);
+    public static extern unsafe int TfLiteTensorNumDims(IntPtr tensor);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe int TfLiteTensorDim(TfLiteTensor tensor, int dim_index);
+    public static extern unsafe int TfLiteTensorDim(IntPtr tensor, int dim_index);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe uint TfLiteTensorByteSize(TfLiteTensor tensor);
+    public static extern unsafe uint TfLiteTensorByteSize(IntPtr tensor);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe IntPtr TfLiteTensorData(TfLiteTensorData tensor);
+    public static extern unsafe IntPtr TfLiteTensorData(IntPtr tensor);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe IntPtr TfLiteTensorName(TfLiteTensor tensor);
+    public static extern unsafe IntPtr TfLiteTensorName(IntPtr tensor);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe TfLiteQuantizationParams TfLiteTensorQuantizationParams(TfLiteTensor tensor);
+    public static extern unsafe TfLiteQuantizationParams TfLiteTensorQuantizationParams(IntPtr tensor);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe TfLiteStatus TfLiteTensorCopyFromBuffer(
-        TfLiteTensor tensor,
+    public static extern unsafe TfLiteStatus TfLiteTensorCopyFromBuffer(
+        IntPtr tensor,
         IntPtr input_data,
         int input_data_size);
 
     [DllImport(LIB_NAME)]
-    private static extern unsafe TfLiteStatus TfLiteTensorCopyToBuffer(
-        TfLiteTensor tensor,
+    public static extern unsafe TfLiteStatus TfLiteTensorCopyToBuffer(
+        IntPtr tensor,
         IntPtr output_data,
         int output_data_size);
 
