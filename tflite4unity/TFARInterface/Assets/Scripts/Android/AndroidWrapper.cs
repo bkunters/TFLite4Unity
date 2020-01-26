@@ -2,7 +2,6 @@
 
 /// <summary>
 /// This is a wrapper to use Android TFLite code inside Unity through the plugin.
-/// TODO: import the c++ library later https://www.tensorflow.org/lite/performance/gpu_advanced#android_cc
 /// </summary>
 public class AndroidWrapper
 {
