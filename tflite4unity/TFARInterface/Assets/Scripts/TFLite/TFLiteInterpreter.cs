@@ -1,12 +1,16 @@
 using System;
 using System.Runtime.InteropServices;
 
+#if DEBUG
+using UnityEngine;
+#endif 
+
 namespace TFLite{
 
     #region Aliases
     using Model              = InterpreterWrapper.TfLiteModel;
     using QuantizationParams = InterpreterWrapper.TfLiteQuantizationParams;
-    using Interpreter        = InterpreterWrapper.TfLiteInterpreter;
+    using InterpreterStr     = InterpreterWrapper.TfLiteInterpreter;
     using Options            = InterpreterWrapper.TfLiteInterpreterOptions;
     using Status             = InterpreterWrapper.TfLiteStatus;
     using Tensor             = GPUDelegateWrapper.TfLiteTensor;
@@ -16,55 +20,84 @@ namespace TFLite{
 
     public class Interpreter : IDisposable{
 
-        /// TODO: Implement the functions from <see cref="InterpreterWrapper"/>
-
         /// <summary>
         /// The deep learning model to be written into memory
         /// </summary>
-        public Model TFModel{get; private set;}
+        public IntPtr TFModel{get; private set;}
 
         /// <summary>
         /// The interpreter for managing the inference
         /// </summary>
-        public Interpreter TFInterpreter{get; private set;}
+        public IntPtr TFInterpreter{get; private set;}
 
         /// <summary>
         /// The gpu delegate to be used with the interpreter
         /// </summary>
-        public GPUDelegate gpuDelegate{get; private set;}
+        public IntPtr gpuDelegate{get; private set;}
 
         /// <summary>
-        /// Creates the model from its name
+        /// Creates the model from its content
         /// Default: gpu-ready model
         /// </summary>
-        public Interpreter(string filename){
+        public Interpreter(byte[] modelData){
+
+            TFInterpreter = IntPtr.Zero;
+            TFModel       = IntPtr.Zero;
+            gpuDelegate   = IntPtr.Zero;
+
             // Initialize the model.
-            TFModel       = Marshal.PtrToStructure<Model>(InterpreterWrapper.TfLiteModelCreateFromFile(filename));
-            if(TFModel == null){
+            GCHandle modelDataHandle = GCHandle.Alloc(modelData, GCHandleType.Pinned);
+            IntPtr modelDataPtr = modelDataHandle.AddrOfPinnedObject();
+            TFModel = InterpreterWrapper.TfLiteModelCreate(modelDataPtr, (uint)modelData.Length);
+            if(TFModel == IntPtr.Zero){
                 throw new Exception("Model could not be initialized...");
             }
+            #if DEBUG
+            else{
+                Debug.Log("Model initialized.");
+            }
+            #endif
 
             // Setup the GPU delegate.
-            GPUOptions  = GPUDelegateWrapper.TfLiteGpuDelegateOptionsV2Default();
-            gpuDelegate = GPUDelegateWrapper.TfLiteGpuDelegateV2Create(GPUOptions);
-            if(gpuDelegate == null){
+            IntPtr gpuOptions  = GPUDelegateWrapper.TfLiteGpuDelegateOptionsV2Default();
+            gpuDelegate = GPUDelegateWrapper.TfLiteGpuDelegateV2Create(gpuOptions);
+            if(gpuDelegate == IntPtr.Zero){
                 throw new Exception("GPU delegate could not be initialized...");
             }
+            #if DEBUG
+            else{
+                Debug.Log("GPU Delegate initialized.");
+            }
+            #endif
 
             // Initialize the interpreter.
-            Options options = InterpreterWrapper.TfLiteInterpreterOptionsCreate();
+            IntPtr options = InterpreterWrapper.TfLiteInterpreterOptionsCreate();
             InterpreterWrapper.TfLiteInterpreterOptionsAddDelegate(options, gpuDelegate);
             TFInterpreter = InterpreterWrapper.TfLiteInterpreterCreate(TFModel, options);
-            if(TFInterpreter == null){
+            if(TFInterpreter == IntPtr.Zero){
                 throw new Exception("Interpreter could not be initialized...");
             }
+            #if DEBUG
+            else{
+                Debug.Log("Interpreter initialized.");
+            }
+            #endif
         }
 
-        public override void Dispose(){
+        // TODO: Implement other functionalities for runtime inference.
+
+        public void Dispose(){
             // Delete the interpreter.
             InterpreterWrapper.TfLiteInterpreterDelete(TFInterpreter);
             // Delete model from memory.
             InterpreterWrapper.TfLiteModelDelete(TFModel);
+            // Delete the gpu delegate.
+            GPUDelegateWrapper.TfLiteGpuDelegateV2Delete(gpuDelegate);
+        
+            // Reset the pointers.
+            TFInterpreter = IntPtr.Zero;
+            TFModel       = IntPtr.Zero;
+            gpuDelegate   = IntPtr.Zero;
         }
 
     }

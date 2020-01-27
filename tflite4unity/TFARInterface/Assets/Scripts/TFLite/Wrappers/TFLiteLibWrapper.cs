@@ -7,7 +7,7 @@ namespace TFLite{
 
 
 public class InterpreterWrapper{
-    public const string LIB_NAME = "libtensorflowlite_c";
+    private const string LIB_NAME = "tensorflowlite_c";
 
     #region Structs/Enums
 
@@ -31,14 +31,10 @@ public class InterpreterWrapper{
 
     [StructLayout(LayoutKind.Sequential)]
     public struct TfLiteInterpreterOptions{
-        //public enum Threads{
-        //    kDefaultNumThreads = -1
-        //};
-
-        //public int num_threads = Threads.kDefaultNumThreads;
-        public IntPtr error_reporter = IntPtr.Zero;
-        public IntPtr error_reporter_user_data = IntPtr.Zero;
-        public IntPtr delegates;
+        public int num_threads;
+        public IntPtr error_reporter;
+        public IntPtr error_reporter_user_data;
+        public IntPtr _delegate;
     };
 
     public enum TfLiteStatus{
@@ -83,7 +79,7 @@ public class InterpreterWrapper{
     public static extern unsafe void TfLiteInterpreterOptionsSetErrorReporter(IntPtr options, IntPtr reporter, IntPtr user_data);
 
     [DllImport(LIB_NAME)]
-    public static extern unsafe TfLiteInterpreter TfLiteInterpreterCreate(
+    public static extern unsafe IntPtr TfLiteInterpreterCreate(
         IntPtr model,
         IntPtr optional_options);
 
@@ -94,7 +90,7 @@ public class InterpreterWrapper{
     public static extern unsafe int TfLiteInterpreterGetInputTensorCount(IntPtr interpreter);
 
     [DllImport(LIB_NAME)]
-    public static extern unsafe TfLiteTensor TfLiteInterpreterGetInputTensor(
+    public static extern unsafe IntPtr TfLiteInterpreterGetInputTensor(
         IntPtr interpreter,
         int input_index);
 
@@ -117,12 +113,12 @@ public class InterpreterWrapper{
         IntPtr interpreter);
 
     [DllImport(LIB_NAME)]
-    public static extern unsafe TfLiteTensor TfLiteInterpreterGetOutputTensor(
+    public static extern unsafe IntPtr TfLiteInterpreterGetOutputTensor(
         IntPtr interpreter,
         int output_index);
 
     [DllImport(LIB_NAME)]
-    public static extern unsafe TfLiteType TfLiteTensorType(IntPtr tensor);
+    public static extern unsafe int TfLiteTensorType(IntPtr tensor);
 
     [DllImport(LIB_NAME)]
     public static extern unsafe int TfLiteTensorNumDims(IntPtr tensor);

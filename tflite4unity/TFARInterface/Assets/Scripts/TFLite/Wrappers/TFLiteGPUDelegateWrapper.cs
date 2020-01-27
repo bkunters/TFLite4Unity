@@ -7,7 +7,8 @@ namespace TFLite{
 
     
     public class GPUDelegateWrapper{
-        private const string LIB_NAME = "libtensorflowlite_gpu_delegate";
+        
+        private const string LIB_NAME = "tensorflowlite_gpu_delegate";
 
         #region Structs/Enums
 
@@ -176,7 +177,7 @@ namespace TFLite{
 
         #region Native Methods.
         [DllImport(LIB_NAME)]
-        public static extern unsafe TfLiteDelegate TfLiteDelegateCreate();
+        public static extern unsafe IntPtr TfLiteDelegateCreate();
 
         [DllImport(LIB_NAME)]
         public static extern unsafe IntPtr TfLiteFloatArrayCreate(int size);
@@ -188,7 +189,7 @@ namespace TFLite{
         public static extern unsafe int TfLiteFloatArrayGetSizeInBytes(int size);
 
         [DllImport(LIB_NAME)]
-        public static extern unsafe TfLiteGpuDelegateOptionsV2 TfLiteGpuDelegateOptionsV2Default();
+        public static extern unsafe IntPtr TfLiteGpuDelegateOptionsV2Default();
 
         [DllImport(LIB_NAME)]
         public static extern unsafe IntPtr TfLiteGpuDelegateV2Create(IntPtr options);
@@ -228,7 +229,7 @@ namespace TFLite{
 
         [DllImport(LIB_NAME)]
         public static extern unsafe void TfLiteTensorReset(TfLiteType type, string name, IntPtr dims,
-                                                           TfLiteQuantizationParams quantization, IntPtr buffer,
+                                                           IntPtr quantization, IntPtr buffer,
                                                            uint size, TfLiteAllocationType allocation_type,
                                                            IntPtr allocation, bool is_variable,
                                                            IntPtr tensor);

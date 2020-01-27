@@ -5,7 +5,7 @@
 /// </summary>
 public class HandControl : MonoBehaviour, IInference
 {
-
+    
     #region Public Fields
     // TODO: Classify the hand gestures at each frame.
     // https://www.manomotion.com/supported-gestures/
