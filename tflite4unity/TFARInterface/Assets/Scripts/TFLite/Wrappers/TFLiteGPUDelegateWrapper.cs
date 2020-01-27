@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 // TODO: Docu for the methods.
 namespace TFLite{
 
-    private static const string LIB_NAME = "libtensorflowlite_gpu_delegate";
     
     public class GPUDelegateWrapper{
+        private const string LIB_NAME = "libtensorflowlite_gpu_delegate";
 
         #region Structs/Enums
 

@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 // TODO: Docu for the methods.
 namespace TFLite{
 
-public static const string LIB_NAME = "libtensorflowlite_c";
 
 public class InterpreterWrapper{
+    public const string LIB_NAME = "libtensorflowlite_c";
 
     #region Structs/Enums
 
