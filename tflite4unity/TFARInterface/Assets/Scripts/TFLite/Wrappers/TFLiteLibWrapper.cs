@@ -136,16 +136,16 @@ public class InterpreterWrapper{
     public static extern unsafe IntPtr TfLiteTensorName(IntPtr tensor);
 
     [DllImport(LIB_NAME)]
-    public static extern unsafe TfLiteQuantizationParams TfLiteTensorQuantizationParams(IntPtr tensor);
+    public static extern unsafe IntPtr TfLiteTensorQuantizationParams(IntPtr tensor);
 
     [DllImport(LIB_NAME)]
-    public static extern unsafe TfLiteStatus TfLiteTensorCopyFromBuffer(
+    public static extern unsafe int TfLiteTensorCopyFromBuffer(
         IntPtr tensor,
         IntPtr input_data,
         int input_data_size);
 
     [DllImport(LIB_NAME)]
-    public static extern unsafe TfLiteStatus TfLiteTensorCopyToBuffer(
+    public static extern unsafe int TfLiteTensorCopyToBuffer(
         IntPtr tensor,
         IntPtr output_data,
         int output_data_size);

@@ -8,7 +8,7 @@
 ./configure
 
 # Build the tflite lib.
-#bazel build //tensorflow/lite:libtensorflowlite.so --config android_arm64 --cxxopt='--std=c++11' -c opt               # For integrating into android directly.
+#bazel build //tensorflow/lite:libtensorflowlite.so --config android_arm64 --cxxopt='--std=c++11' -c opt               # For integrating into Android directly.
 bazel build -c opt --cxxopt=--std=c++11 --config=android_arm64 //tensorflow/lite/experimental/c:libtensorflowlite_c.so # For external imports(e.g. Unity)
 
 # Build the gpu delegate.
