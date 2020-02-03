@@ -117,16 +117,46 @@ namespace TFLite{
 
         #region Public Methods
         public static string GetTFLiteVersion(){
-            return InterpreterWrapper.TfLiteVersion();
+            return Marshal.PtrToStringAnsi(InterpreterWrapper.TfLiteVersion());
         }
 
         /// <summary>
-        /// Runs the model on allocated tensors
+        /// Runs the model on allocated tensors and
+        /// returns the result buffer with the type T
+        /// todo: more generalizable code for other models
+        /// <param name="inputShape">"Initialize for the desired resize shape"</param>
         /// </summary>
-        public void InvokeModel(){
+        public void InvokeModel<T>(Array inputTensorArray, Array outputTensorArray, int inputTensorIndex = 0, int[] inputShape = null, int outputTensorIndex = 0){
+            // Resize, if shape is given.
+            if(inputShape != null){
+                int dimensionSize = inputShape.Length;
+                TensorOps.ResizeInputTensor(TFInterpreter, inputTensorIndex, inputShape, dimensionSize);
+            }
+            // Allocate the input and output tensors
+            TensorOps.AllocateTensors(TFInterpreter);
+
+            // Set the input tensor
+            GCHandle inputHandle = GCHandle.Alloc(inputTensorArray, GCHandleType.Pinned);
+            IntPtr inputTensorPtr = inputHandle.AddrOfPinnedObject();
+            IntPtr input = InterpreterWrapper.TfLiteInterpreterGetInputTensor(TFInterpreter, inputTensorIndex);
+            int statusInput = InterpreterWrapper.TfLiteTensorCopyFromBuffer(input, inputTensorPtr, Buffer.ByteLength(inputTensorArray));
+            if(statusInput == (int)Status.kTfLiteError){
+                throw new Exception("Input buffer allocation failed.");
+            }
+
+            // Run the inference
             int status = InterpreterWrapper.TfLiteInterpreterInvoke(TFInterpreter);
             if(status == (int)Status.kTfLiteError){
                 throw new Exception("Model inference failed.");
+            }
+
+            // Set the output tensor.
+            GCHandle outputHandle = GCHandle.Alloc(outputTensorArray, GCHandleType.Pinned);
+            IntPtr outputTensorPtr = outputHandle.AddrOfPinnedObject();
+            IntPtr output = InterpreterWrapper.TfLiteInterpreterGetOutputTensor(TFInterpreter, outputTensorIndex);
+            int statusOutput = InterpreterWrapper.TfLiteTensorCopyToBuffer(output, outputTensorPtr, Buffer.ByteLength(outputTensorArray));
+            if(statusOutput == (int)Status.kTfLiteError){
+                throw new Exception("Output buffer allocation failed.");
             }
         }
 

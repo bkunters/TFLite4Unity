@@ -20,6 +20,7 @@ namespace TFLite{
 
     /// <summary>
     /// Tensor operations
+    /// TODO: Unit tests; DOCU
     /// </summary>
     public class TensorOps{
 
@@ -31,7 +32,15 @@ namespace TFLite{
             return Marshal.PtrToStructure<Tensor>(InterpreterWrapper.TfLiteInterpreterGetOutputTensor(TFInterpreter, inputIndex));
         }
 
-        public static void ResizeInputTensor(IntPtr interpreter, int inputIndex, IntPtr inputDims, int inputDimsSize){
+        /// <summary>
+        /// Resizes the input tensor
+        /// Call before the AllocateTensors()
+        /// <param name="interpreter">Current interpreter</param>
+        /// <param name="inputIndex">The input tensor's index</param>
+        /// <param name="inputDims">New dimension of the input tensor(Ex: [1,256,256,3])</param>
+        /// <param name="inputDimsSize">Length of the inputDims</param>
+        /// </summary>
+        public static void ResizeInputTensor(IntPtr interpreter, int inputIndex, int[] inputDims, int inputDimsSize){
             int status = InterpreterWrapper.TfLiteInterpreterResizeInputTensor(interpreter, inputIndex, inputDims, inputDimsSize);
             #if DEBUG
             if(status == (int)Status.kTfLiteError){

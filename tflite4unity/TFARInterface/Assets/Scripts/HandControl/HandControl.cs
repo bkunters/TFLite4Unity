@@ -42,14 +42,17 @@ public class HandControl : MonoBehaviour, IInference
     private LineRenderer[] m_keypoints;
 
     // Input image width for the tracking model is 256.
-    private readonly float RATIO_X = (Screen.currentResolution.width / 256);
+    private float RATIO_X;
     // Input image height for the tracking model is 256.
-    private readonly float RATIO_Y = (Screen.currentResolution.height / 256);
+    private float RATIO_Y;
     #endregion
 
     #region Lifetime Methods
     void Awake()
     {
+        RATIO_X = (Screen.currentResolution.width / 256);
+        RATIO_Y = (Screen.currentResolution.height / 256);
+
         // Set the android wrapper.
         m_androidWrapper = new AndroidWrapper(HANDTRACKING3D_CLASS_NAME);
     }
@@ -70,7 +73,9 @@ public class HandControl : MonoBehaviour, IInference
         RenderTexture.active = null;
 
         byte[] imageData = cameraImageTexture.EncodeToJPG();
+        renderTexture.Release();
         Destroy(renderTexture);
+        Destroy(cameraImageTexture);
 
         float[] keypoints = RunInference(imageData);
         if (keypoints != null)
