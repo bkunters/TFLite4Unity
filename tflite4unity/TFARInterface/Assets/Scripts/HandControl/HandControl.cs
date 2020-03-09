@@ -29,13 +29,19 @@ public class HandControl : MonoBehaviour, IInference
     /// <summary>
     /// Name of the inference class.
     /// </summary>
-    private readonly string HANDTRACKING3D_CLASS_NAME = "com.bora.tflitehandtracking.HandTrackingInference3D";
+    private readonly string HANDTRACKING2D_CLASS_NAME = "com.bora.tflitehandtracking.HandTrackingInference2D";
 
     /// <summary>
     /// The AR camera rendering the scene.
     /// </summary>
     [SerializeField]
     private Camera m_camera;
+
+    /// <summary>
+    /// The material to be used to visualize the keypoints
+    /// </summary>
+    [SerializeField]
+    private Material m_keypointMaterial;
 
     // TODO: Remove it later.
     [SerializeField]
@@ -54,7 +60,7 @@ public class HandControl : MonoBehaviour, IInference
         RATIO_Y = (Screen.currentResolution.height / 256);
 
         // Set the android wrapper.
-        m_androidWrapper = new AndroidWrapper(HANDTRACKING3D_CLASS_NAME);
+        m_androidWrapper = new AndroidWrapper(HANDTRACKING2D_CLASS_NAME);
     }
 
     /// <summary>
@@ -72,7 +78,7 @@ public class HandControl : MonoBehaviour, IInference
         m_camera.targetTexture = null;
         RenderTexture.active = null;
 
-        byte[] imageData = cameraImageTexture.EncodeToJPG();
+        byte[] imageData = cameraImageTexture.EncodeToPNG();
         renderTexture.Release();
         Destroy(renderTexture);
         Destroy(cameraImageTexture);
@@ -80,7 +86,8 @@ public class HandControl : MonoBehaviour, IInference
         float[] keypoints = RunInference(imageData);
         if (keypoints != null)
         {
-            SetHandLines(keypoints);
+            //SetHandLines(keypoints);
+            m_keypointMaterial.SetFloatArray("m_keypointBuffer", keypoints);
         }
     }
     #endregion
@@ -95,10 +102,11 @@ public class HandControl : MonoBehaviour, IInference
     {
         Vector3[] keypointPositions = new Vector3[21];
         int j = 0;
-        for (int i = 0; i < keypoints.Length; i += 3)
+        for (int i = 0; i < keypoints.Length; i += 2)
         {
-            // TODO: adapt to the current screen size.
-            keypointPositions[j] = m_camera.ScreenToWorldPoint(new Vector3(keypoints[i]*RATIO_X, 1080.0f - keypoints[i+1]*RATIO_Y, 1));
+            keypointPositions[j] = m_camera.ScreenToWorldPoint(new Vector3(keypoints[i]*RATIO_X, 
+                                                                           Screen.currentResolution.height - keypoints[i+1]*RATIO_Y,
+                                                                           0.5f));
             j++;
         }
 
@@ -186,8 +194,7 @@ public class HandControl : MonoBehaviour, IInference
         m_keypoints[20].SetPosition(0, keypointPositions[19]);
         m_keypoints[20].SetPosition(1, keypointPositions[20]);
     }
-    
-    
+
     /// <summary>
     /// Runs the inference on device.
     /// </summary>
