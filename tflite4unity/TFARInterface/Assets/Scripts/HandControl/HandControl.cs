@@ -51,6 +51,9 @@ public class HandControl : MonoBehaviour, IInference
     private float RATIO_X;
     // Input image height for the tracking model is 256.
     private float RATIO_Y;
+
+    private RenderTexture renderTexture;
+    private Texture2D cameraImageTexture;
     #endregion
 
     #region Lifetime Methods
@@ -63,32 +66,32 @@ public class HandControl : MonoBehaviour, IInference
         m_androidWrapper = new AndroidWrapper(HANDTRACKING2D_CLASS_NAME);
     }
 
+    //void OnRenderImage(RenderTexture source, RenderTexture destination){
+    //    renderTexture = new RenderTexture(256, 256, 24);
+    //    cameraImageTexture = new Texture2D(256, 256, TextureFormat.ARGB32, false);
+    //    RenderTexture.active = renderTexture;
+    //    cameraImageTexture.ReadPixels(new Rect(0, 0, 256, 256), 0, 0);
+//
+    //    byte[] imageData = cameraImageTexture.EncodeToPNG();
+    //    float[] keypoints = RunInference(imageData);
+    //    if (keypoints != null)
+    //    {
+    //        m_keypointMaterial.SetFloatArray("m_keypointBuffer", keypoints);
+    //    }
+//
+    //    m_camera.targetTexture = null;
+    //    Graphics.Blit(renderTexture, null, m_keypointMaterial);
+//
+    //    RenderTexture.active = null;
+    //    renderTexture.Release();
+    //}
+
     /// <summary>
     /// Capture the current frame and run the inference.
     /// </summary>
     private void LateUpdate()
     {
-        RenderTexture renderTexture = new RenderTexture(256, 256, 24);
-        m_camera.targetTexture = renderTexture;
-        Texture2D cameraImageTexture = new Texture2D(256, 256, TextureFormat.ARGB32, false);
-        m_camera.Render();
-        RenderTexture.active = renderTexture;
-        cameraImageTexture.ReadPixels(new Rect(0, 0, 256, 256), 0, 0);
-
-        m_camera.targetTexture = null;
-        RenderTexture.active = null;
-
-        byte[] imageData = cameraImageTexture.EncodeToPNG();
-        renderTexture.Release();
-        Destroy(renderTexture);
-        Destroy(cameraImageTexture);
-
-        float[] keypoints = RunInference(imageData);
-        if (keypoints != null)
-        {
-            //SetHandLines(keypoints);
-            m_keypointMaterial.SetFloatArray("m_keypointBuffer", keypoints);
-        }
+        PostProcessAndInference();
     }
     #endregion
 
@@ -193,6 +196,28 @@ public class HandControl : MonoBehaviour, IInference
         // 19-20
         m_keypoints[20].SetPosition(0, keypointPositions[19]);
         m_keypoints[20].SetPosition(1, keypointPositions[20]);
+    }
+
+    private void PostProcessAndInference(){
+        renderTexture = new RenderTexture(256, 256, 24);
+        Texture2D cameraImageTexture = new Texture2D(256, 256, TextureFormat.ARGB32, false);
+        m_camera.Render();
+        RenderTexture.active = renderTexture;
+        cameraImageTexture.ReadPixels(new Rect(0, 0, 256, 256), 0, 0);
+
+        byte[] imageData = cameraImageTexture.EncodeToPNG();
+        float[] keypoints = RunInference(imageData);
+        if (keypoints != null)
+        {
+            SetHandLines(keypoints);
+            //Graphics.Blit(renderTexture, null, m_keypointMaterial);
+        }
+
+        m_camera.targetTexture = null;
+        RenderTexture.active = null;
+        renderTexture.Release();
+        Destroy(renderTexture);
+        Destroy(cameraImageTexture);
     }
 
     /// <summary>
