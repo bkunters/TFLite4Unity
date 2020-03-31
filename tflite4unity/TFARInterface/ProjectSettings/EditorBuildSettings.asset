@@ -8,4 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/HandKeypointTracking2DJavaSample.unity
     guid: 9747baef32880eb448efa02d21e7d001
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 6cc662e17fb7cc6faa9f19367966dfd2,
+      type: 2}

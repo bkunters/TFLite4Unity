@@ -7,7 +7,7 @@ using TFLite;
 /// Represents a single image task with the given image data type T
 /// T can be float or sbyte
 /// </summary>
-public class ImageTask<T> : MonoBehaviour{
+public class ImageTask<T>{
 
     #region Public Fields
     /// <summary>
@@ -48,20 +48,9 @@ public class ImageTask<T> : MonoBehaviour{
     /// <summary>
     /// Capture the current frame and run the inference.
     /// </summary>
-    private void LateUpdate()
-    {
-        // Takes the screenshot of the scene.
-        RenderTexture renderTexture = new RenderTexture(m_width, m_height, 24);
-        m_camera.targetTexture = renderTexture;
-        Texture2D cameraImageTexture = new Texture2D(m_width, m_height, TextureFormat.ARGB32, false);
-        m_camera.Render();
-        RenderTexture.active = renderTexture;
-        cameraImageTexture.ReadPixels(new Rect(0, 0, m_width, m_height), 0, 0);
-        m_camera.targetTexture = null;
-        RenderTexture.active = null;
+    public void Inference(){
 
-        var pixels = cameraImageTexture.GetPixels();
-        
+        var pixels = ImageUtils.TakeScreenshot(m_width: m_width, m_height: m_height, m_camera: m_camera);
         if(typeof(T) == typeof(float)){
             float[,,] inputData = new float[m_width, m_height, 3];
             for(int i = 0; i < pixels.Length; i++){
@@ -81,10 +70,10 @@ public class ImageTask<T> : MonoBehaviour{
             }
         }
         else{
-
+            // TODO: handle the sbyte inputs.
         }
         
-        Destroy(renderTexture);
-        Destroy(cameraImageTexture);
+        //Destroy(renderTexture);
+        //Destroy(cameraImageTexture);
     }
 }
